@@ -50,6 +50,16 @@ public class AddressList {
 		_addresses.add(addr);
 	}
 	
+	public void removeClientList(ClientList client) {
+		_allow.remove(client);
+		_deny.remove(client);
+	}
+
+	public void removeClient(String client) {
+		_allow.get(0).remove(client);
+		_deny.get(0).remove(client);
+	}
+	
 	public ListStatus canConnectTo(String client, String address) {
 		boolean contains = _addresses.stream().anyMatch(e -> e.contains(address));
 		
@@ -59,5 +69,31 @@ public class AddressList {
 		}
 		
 		return ListStatus.DOESNT_HAVE;
+	}
+	
+	@Override
+	public String toString() {
+		String result = "";
+		result += "ADDRESS LIST " + name + "\r\n";
+		for(String c : _addresses) {
+			result += "ADDRESS " + c + "\r\n";
+		}
+		for(int i=0; i < _allow.size(); i++) {
+			if(i == 0 && _allow.get(0).size() > 0) {
+				result += "LOCAL ALLOW LIST\r\n";
+				result += _allow.get(0).getClients();
+			} else {
+				result += "ALLOW CLIENT LIST " + _allow.get(i).name + "\r\n";
+			}
+		}
+		for(int i=0; i < _deny.size(); i++) {
+			if(i == 0 && _deny.get(0).size() > 0) {
+				result += "LOCAL DENY LIST\r\n";
+				result += _deny.get(0).getClients();
+			} else {
+				result += "DENY CLIENT LIST " + _deny.get(i).name + "\r\n";
+			}
+		}
+		return result;
 	}
 }

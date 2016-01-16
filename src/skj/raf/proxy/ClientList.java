@@ -32,11 +32,33 @@ public class ClientList {
 	}
 	
 	public boolean contains(String pattern) {
-		return _clients.stream().anyMatch(e -> e.contains(pattern));
+		return _clients.stream().anyMatch(e -> e.startsWith(pattern));
 	}
 	
 	public void displayToConsole() {
 		System.out.println(name + " list has " + _clients.size() + " clients");
 		_clients.forEach(e -> System.out.println(name + " - " + e));
+	}
+	
+	public String getClients() {
+		String result = "";
+		for(String c : _clients) {
+			result += "CLIENT " + c + "\r\n";
+		}
+		return result;
+	}
+	
+	public int size() {
+		return _clients.size();
+	}
+	
+	@Override
+	public String toString() {
+		String result = "";
+		result += "CLIENT LIST " + name + "\r\n";
+		for(String c : _clients) {
+			result += "CLIENT " + c + "\r\n";
+		}
+		return result;
 	}
 }

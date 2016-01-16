@@ -39,6 +39,7 @@ public class ConfiguratorMain {
 					
 					socket.receive(packet);
 					String rec = new String(packet.getData(), 0, packet.getLength());
+					
 					if(!logged && rec.contains("HASH;")) {
 						rec = rec.substring(5, rec.length());
 						hash = rec;
@@ -49,6 +50,23 @@ public class ConfiguratorMain {
 						packet.setData(buffer);
 						socket.receive(packet);
 					}
+					
+					if(rec.startsWith("GET;")) {
+						rec = rec.substring(4);
+						System.out.println(rec);
+						buffer = new byte[BUFFER_SIZE];
+						packet.setData(buffer);
+						socket.receive(packet);
+					}
+					
+					if(rec.startsWith("REMOVE;")) {
+						rec = rec.substring(7);
+						System.out.println(rec);
+						buffer = new byte[BUFFER_SIZE];
+						packet.setData(buffer);
+						socket.receive(packet);
+					}
+					
 					System.out.println(new String(packet.getData()));
 				} catch(IOException e) {
 					scanner.close();

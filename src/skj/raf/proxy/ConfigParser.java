@@ -54,8 +54,14 @@ public class ConfigParser {
 		String[] hashed = command.split(";");
 		if(hashed.length > 1) {
 			if(hashed[0].length() > 0 && _workers.contains(hashed[0])) {
-				System.out.println(hashed[1]);
-				parseCommand(hashed[1].replaceAll("\\r\\n", ""), 0);
+				hashed[1] = hashed[1].replaceAll("\\r\\n", "");
+				if(hashed[1].startsWith("GET")) {
+					parseGet(hashed[1].split(" "), o);
+				} else if(hashed[1].startsWith("REMOVE")){
+					parseRemove(hashed[1].split(" "), o);
+				} else {
+					parseCommand(hashed[1], 0);
+				}
 			} else {
 				String[] arr = hashed[1].split(" ");
 				if(arr.length > 1) {
@@ -205,4 +211,84 @@ public class ConfigParser {
 		}
 	}
 
+	private static void parseGet(String[] arr, ConfigUpdater o) throws ParseException {
+		if(arr.length > 1) {
+			switch(arr[1]) {
+				case "LIST_CLIENT": {
+					if(arr.length == 2) {
+						o.sendList(ProxyFilter.getClientsLists());
+					} else {
+						o.sendList(ProxyFilter.getClientList(arr[2]));
+					}
+				} break;
+				case "LIST_ADDRESS": {
+					if(arr.length == 2) {
+						o.sendList(ProxyFilter.getAddressesLists());
+					} else {
+						o.sendList(ProxyFilter.getAddressList(arr[2]));
+					}
+				} break;
+				default : {
+					throw new ParseException("Wrong get params", 2);
+				}
+			}
+		} else {
+			throw new ParseException("Wrong get section", 1);
+		}
+	}
+	
+	private static void parseRemove(String[] arr, ConfigUpdater o) throws ParseException {
+		if(arr.length > 1) {
+			switch(arr[1]) {
+				case "CLIENT": {
+					if(arr.length > 2) {
+						if(arr.length > 3) {
+							switch(arr[3]) {
+								case "LIST_CLIENT": {
+									if(arr.length > 4) {
+										o.sendRemoval(ProxyFilter.removeClientFromClientList(arr[4], arr[2]));
+									} else {
+										throw new ParseException("Name for client list is not specified", 5);
+									}
+								} break;
+								case "LIST_ADDRESS": {
+									if(arr.length > 4) {
+										o.sendRemoval(ProxyFilter.removeClientFromAddressList(arr[4], arr[2]));
+									} else {
+										throw new ParseException("Name for address list is not specified", 5);
+									}
+								} break;
+								default: {
+									throw new ParseException("Wrong list type", 5);
+								}
+							}
+						} else {
+							throw new ParseException("List type is not specified", 4);
+						}
+					} else {
+						throw new ParseException("Name for client is not specified", 3);
+					}
+				} break;
+				case "LIST_CLIENT": {
+					if(arr.length > 2) {
+						o.sendRemoval(ProxyFilter.removeClientList(arr[2]));
+					} else {
+						throw new ParseException("Name for client list is not specified", 3);
+					}
+				} break;
+				case "LIST_ADDRESS": {
+					if(arr.length > 2) {
+						o.sendRemoval(ProxyFilter.removeAddressList(arr[2]));
+					} else {
+						throw new ParseException("Name for address list is not specified", 3);
+					}
+				} break;
+				default: {
+					throw new ParseException("Wrong remove params", 2);
+				}
+			}
+		} else {
+			throw new ParseException("Wrong remove section", 1);
+		}
+	}
 }

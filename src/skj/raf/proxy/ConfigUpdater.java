@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
-import java.text.ParseException;
 
 public class ConfigUpdater implements Runnable{
 
@@ -37,6 +36,24 @@ public class ConfigUpdater implements Runnable{
 		return false;
 	}
 	
+	public void sendList(String list) {
+		_packet.setData(("GET;" + list).getBytes());
+		try {
+			_server.send(_packet);
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
+		}
+	}
+	
+	public void sendRemoval(String removed) {
+		_packet.setData(("REMOVE;" + removed).getBytes());
+		try {
+			_server.send(_packet);
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
+		}
+	}
+	
 	@Override
 	public void run() {
 		String command;
@@ -49,7 +66,7 @@ public class ConfigUpdater implements Runnable{
 				try {
 					ConfigParser.parseConfigurator(command, this);
 					_packet.setData("DONE".getBytes());
-				} catch (ParseException e) {
+				} catch (Exception e) {
 					_packet.setData(e.getMessage().getBytes());
 				} finally {
 					_server.send(_packet);

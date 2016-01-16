@@ -38,6 +38,42 @@ public class ProxyFilter {
 		}
 	}
 	
+	public static String getClientsLists() {
+		String result = "";
+		
+		for(ClientList e : _clients.values()) {
+			result += "ADDRESS LIST " + e.name + "\r\n";
+		}
+		
+		return result;
+	}
+	
+	public static String getClientList(String name) throws IllegalArgumentException {
+		ClientList tmp = _clients.get(name);
+		if(tmp != null) {
+			return tmp.toString();
+		} else {
+			throw new IllegalArgumentException("Client List " + name + " not found");
+		}
+	}
+	
+	public static String removeClientList(String name) throws IllegalArgumentException {
+		ClientList client = _clients.get(name);
+		if(client != null) {
+			_addresses.values().forEach(e -> e.removeClientList(client));
+			_clients.remove(name, client);
+			return "Removed " + name + " successfully";
+		} else throw new IllegalArgumentException("Client list " + name + " not found, removal failed"); 
+	}
+	
+	public static String removeClientFromClientList(String list, String pattern) throws IllegalArgumentException {
+		ClientList client = _clients.get(list);
+		if(client != null) {
+			client.remove(pattern);
+			return "Removed " + pattern + " from "+ list + " successfully";
+		} else throw new IllegalArgumentException("Client list " + list + " not found, removal failed"); 
+	}
+	
 	// ADDRESSES LIST METHODS
 	
 	public static void createAddressList(String name) throws IllegalArgumentException {
@@ -45,7 +81,7 @@ public class ProxyFilter {
 		_addresses.put(name, new AddressList(name));
 	}
 	
-	public static void addAddressToAddressList(String list, String addr) {
+	public static void addAddressToAddressList(String list, String addr) throws IllegalArgumentException {
 		if(_addresses.containsKey(list)) {
 			_addresses.get(list).addAddress(addr);
 		} else {
@@ -53,7 +89,7 @@ public class ProxyFilter {
 		}
 	}
 	
-	public static void addClientToAddressList(String addressListName, String client, boolean allow) {
+	public static void addClientToAddressList(String addressListName, String client, boolean allow) throws IllegalArgumentException {
 		AddressList addressList = _addresses.get(addressListName);
 		if(addressList != null) {
 			if(allow) addressList.allowClient(client);
@@ -63,7 +99,7 @@ public class ProxyFilter {
 		}
 	}
 	
-	public static void addClientListToAddressList(String addressListName, String clientListName, boolean allow) {
+	public static void addClientListToAddressList(String addressListName, String clientListName, boolean allow) throws IllegalArgumentException {
 		ClientList clientList = _clients.get(clientListName);
 		if(clientList != null){
 			AddressList addressList = _addresses.get(addressListName);
@@ -78,6 +114,46 @@ public class ProxyFilter {
 		}
 	}
 	
+	public static String getAddressesLists() {
+		String result = "";
+		
+		for(AddressList e : _addresses.values()) {
+			result += "ADDRESS LIST " + e.name + "\r\n";
+		}
+		
+		return result;
+	}
+	
+	public static String getAddressList(String name) throws IllegalArgumentException {
+		AddressList tmp = _addresses.get(name);
+		if(tmp != null) {
+			return tmp.toString();
+		} else {
+			throw new IllegalArgumentException("Address List " + name + " not found");
+		}
+	}
+	
+	public static String removeAddressList(String name) throws IllegalArgumentException {
+		AddressList tmp = _addresses.get(name);
+		if(tmp != null) {
+			_addresses.remove(name, tmp);
+			return "Removed " + name + " successfully";
+		} else {
+			throw new IllegalArgumentException("Address List " + name + " not found");
+		}
+	}
+	
+	public static String removeClientFromAddressList(String list, String client) throws IllegalArgumentException {
+		AddressList tmp = _addresses.get(list);
+		if(tmp != null) {
+			tmp.removeClient(client);
+			return "Removed " + client + " from " + list + " successfully";
+		} else {
+			throw new IllegalArgumentException("Address List " + list + " not found");
+		}
+	}
+	
+	// FILTER
 	
 	public static ProxyStatus filter(InetSocketAddress addr, String host) {
 		if(host.endsWith(":443") || host.startsWith("https://")) return ProxyStatus.UNSUPPORTED;
