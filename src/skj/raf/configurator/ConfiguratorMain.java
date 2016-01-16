@@ -67,6 +67,14 @@ public class ConfiguratorMain {
 						socket.receive(packet);
 					}
 					
+					if(rec.startsWith("SAVE;")) {
+						rec = rec.substring(5);
+						System.out.println(rec);
+						buffer = new byte[BUFFER_SIZE];
+						packet.setData(buffer);
+						socket.receive(packet);
+					}
+					
 					System.out.println(new String(packet.getData()));
 				} catch(IOException e) {
 					scanner.close();

@@ -3,6 +3,7 @@ package skj.raf.proxy;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -12,8 +13,10 @@ public class ConfigParser {
 
 	private static final String SECRET = "12345";
 	private static ArrayList<String> _workers = new ArrayList<>();
+	private static String _path;
 	
 	public static void parseConfig(String path) throws IOException, ParseException {
+		_path = path;
 		File file = new File(path);
 		
 		if(!file.isDirectory() && file.canRead()) {
@@ -50,7 +53,7 @@ public class ConfigParser {
 		}
 	}
 	
-	public static void parseConfigurator(String command, ConfigUpdater o) throws ParseException{
+	public static void parseConfigurator(String command, ConfigUpdater o) throws ParseException, IOException{
 		String[] hashed = command.split(";");
 		if(hashed.length > 1) {
 			if(hashed[0].length() > 0 && _workers.contains(hashed[0])) {
@@ -59,6 +62,8 @@ public class ConfigParser {
 					parseGet(hashed[1].split(" "), o);
 				} else if(hashed[1].startsWith("REMOVE")){
 					parseRemove(hashed[1].split(" "), o);
+				} else if(hashed[1].equals("SAVE")){
+					parseSave(o);
 				} else {
 					parseCommand(hashed[1], 0);
 				}
@@ -248,14 +253,14 @@ public class ConfigParser {
 									if(arr.length > 4) {
 										o.sendRemoval(ProxyFilter.removeClientFromClientList(arr[4], arr[2]));
 									} else {
-										throw new ParseException("Name for client list is not specified", 5);
+										throw new ParseException("Name for client list is not specified", 6);
 									}
 								} break;
 								case "LIST_ADDRESS": {
 									if(arr.length > 4) {
 										o.sendRemoval(ProxyFilter.removeClientFromAddressList(arr[4], arr[2]));
 									} else {
-										throw new ParseException("Name for address list is not specified", 5);
+										throw new ParseException("Name for address list is not specified", 6);
 									}
 								} break;
 								default: {
@@ -267,6 +272,28 @@ public class ConfigParser {
 						}
 					} else {
 						throw new ParseException("Name for client is not specified", 3);
+					}
+				} break;
+				case "ADDRESS": {
+					if(arr.length > 2) {
+						if(arr.length > 3) {
+							switch(arr[3]) {
+								case "LIST_ADDRESS": {
+									if(arr.length > 4) {
+										o.sendRemoval(ProxyFilter.removeAddressFromAddressList(arr[4], arr[2]));
+									} else {
+										throw new ParseException("Name for address list is not specified", 6);
+									}
+								} break;
+								default: {
+									throw new ParseException("Wrong list type", 5);
+								}
+							}
+						} else {
+							throw new ParseException("List type is not specified", 4);
+						}
+					} else {
+						throw new ParseException("Address is not specified", 3);
 					}
 				} break;
 				case "LIST_CLIENT": {
@@ -289,6 +316,22 @@ public class ConfigParser {
 			}
 		} else {
 			throw new ParseException("Wrong remove section", 1);
+		}
+	}
+
+	private static void parseSave(ConfigUpdater o) throws IOException {
+		if(_path != null) {
+			File file = new File(_path);
+			if(!file.isDirectory() && file.canWrite()) {
+				FileWriter fr = new FileWriter(file);
+				ProxyFilter.saveConfig(fr);
+				o.sendSave("Saved current config to " + _path + " successfully");
+				fr.close();
+			} else {
+				throw new IOException("Bad config file specified");
+			}
+		} else{
+			throw new IOException("File path not specified");
 		}
 	}
 }

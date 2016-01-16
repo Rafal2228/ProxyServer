@@ -1,5 +1,7 @@
 package skj.raf.proxy;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 
@@ -150,6 +152,35 @@ public class ProxyFilter {
 			return "Removed " + client + " from " + list + " successfully";
 		} else {
 			throw new IllegalArgumentException("Address List " + list + " not found");
+		}
+	}
+	
+	public static String removeAddressFromAddressList(String list, String addr) throws IllegalArgumentException {
+		AddressList tmp = _addresses.get(list);
+		if(tmp != null) {
+			tmp.removeAddress(addr);
+			return "Removed " + addr + " from " + list + " successfully";
+		} else {
+			throw new IllegalArgumentException("Address List " + list + " not found");
+		}
+	}
+	
+	// SAVE
+	
+	public static void saveConfig(FileWriter fr) throws IOException {
+		String def = "DEFAULT ";
+		if(_default.equals(ProxyStatus.ALLOW)) def += 1 + System.lineSeparator();
+		else def += 0 + System.lineSeparator();
+		fr.write(def);
+		
+		for(ClientList c : _clients.values()) {
+			fr.write("CREATE LIST_CLIENT " + c.name + System.lineSeparator());
+			c.saveClients(fr);
+		}
+		
+		for(AddressList a : _addresses.values()) {
+			fr.write("CREATE LIST_ADDRESS " + a.name + System.lineSeparator());
+			a.saveList(fr);
 		}
 	}
 	

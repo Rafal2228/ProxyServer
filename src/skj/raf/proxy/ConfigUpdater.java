@@ -54,6 +54,15 @@ public class ConfigUpdater implements Runnable{
 		}
 	}
 	
+	public void sendSave(String save) {
+		_packet.setData(("REMOVE;" + save).getBytes());
+		try {
+			_server.send(_packet);
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
+		}
+	}
+	
 	@Override
 	public void run() {
 		String command;
@@ -67,7 +76,12 @@ public class ConfigUpdater implements Runnable{
 					ConfigParser.parseConfigurator(command, this);
 					_packet.setData("DONE".getBytes());
 				} catch (Exception e) {
-					_packet.setData(e.getMessage().getBytes());
+					if(e.getMessage() != null) {
+						_packet.setData(e.getMessage().getBytes());
+					} else {
+						byte[] response = "ERROR".getBytes();
+						_packet.setData(response);
+					}
 				} finally {
 					_server.send(_packet);
 				}

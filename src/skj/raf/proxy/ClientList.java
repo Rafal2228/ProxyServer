@@ -1,5 +1,7 @@
 package skj.raf.proxy;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -26,9 +28,7 @@ public class ClientList {
 	}
 	
 	public void remove(String pattern) {
-		_clients.forEach(e -> {
-			if(e.contains(pattern)) _clients.remove(e);
-		});
+		_clients.removeIf(e -> e.equals(pattern));
 	}
 	
 	public boolean contains(String pattern) {
@@ -38,6 +38,14 @@ public class ClientList {
 	public void displayToConsole() {
 		System.out.println(name + " list has " + _clients.size() + " clients");
 		_clients.forEach(e -> System.out.println(name + " - " + e));
+	}
+	
+	public void saveClients(FileWriter fr) throws IOException {
+		for(String c : _clients) fr.write("ADD CLIENT " + c + " LIST_CLIENT "+ name + System.lineSeparator());
+	}
+	
+	public void saveClientsForAddressList(FileWriter fr, boolean allow, String n) throws IOException {
+		for(String c : _clients) fr.write("ADD CLIENT " + c + " LIST_ADDRESS "+ n + (allow ? " 1" : " 0") + System.lineSeparator());
 	}
 	
 	public String getClients() {

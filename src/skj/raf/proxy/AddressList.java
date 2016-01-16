@@ -1,5 +1,7 @@
 package skj.raf.proxy;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class AddressList {
@@ -50,6 +52,10 @@ public class AddressList {
 		_addresses.add(addr);
 	}
 	
+	public void removeAddress(String addr) {
+		_addresses.removeIf(e -> e.equals(addr));
+	}
+	
 	public void removeClientList(ClientList client) {
 		_allow.remove(client);
 		_deny.remove(client);
@@ -69,6 +75,24 @@ public class AddressList {
 		}
 		
 		return ListStatus.DOESNT_HAVE;
+	}
+	
+	public void saveList(FileWriter fr) throws IOException {
+		for(String e : _addresses) {
+			fr.write("ADD ADDRESS " + e + " LIST_ADDRESS " + name + System.lineSeparator());
+		}
+		
+		_allow.get(0).saveClientsForAddressList(fr, true, name);
+		
+		_deny.get(0).saveClientsForAddressList(fr, false, name);
+		
+		for(int i = 1; i < _allow.size(); i++) {
+			fr.write("ADD LIST_CLIENT " + _allow.get(i).name + " LIST_ADDRESS " + name + " 1" + System.lineSeparator());
+		}
+		
+		for(int i = 1; i < _deny.size(); i++) {
+			fr.write("ADD LIST_CLIENT " + _deny.get(i).name + " LIST_ADDRESS " + name + " 1" + System.lineSeparator());
+		}
 	}
 	
 	@Override
