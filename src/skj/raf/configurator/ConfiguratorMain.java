@@ -11,10 +11,14 @@ public class ConfiguratorMain {
 	private static final int BUFFER_SIZE = 32784;
 	
 	public static void main(String[] args) {
+		String serverName = args.length > 0 ? args[0] : "localhost";
+		int localPort = args.length > 1 ? Integer.parseInt(args[1]) : 9557;
+		int remotePort = args.length > 2 ? Integer.parseInt(args[2]) : 9556;
 		DatagramSocket socket;
+		
 		try {
-			InetAddress localhost = InetAddress.getByName("localhost");
-			socket = new DatagramSocket(9557, localhost);
+			InetAddress serverAddr = InetAddress.getByName(serverName);
+			socket = new DatagramSocket(localPort, serverAddr);
 			
 			
 			Scanner scanner = new Scanner(System.in);
@@ -29,8 +33,8 @@ public class ConfiguratorMain {
 				tmp = base + scanner.nextLine();
 				buffer = tmp.getBytes();
 				packet = new DatagramPacket(buffer, buffer.length);
-				packet.setAddress(localhost);
-				packet.setPort(9556);
+				packet.setAddress(serverAddr);
+				packet.setPort(remotePort);
 				
 				try{
 					socket.send(packet);

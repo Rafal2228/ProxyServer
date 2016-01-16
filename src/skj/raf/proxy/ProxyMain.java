@@ -5,8 +5,8 @@ import java.io.IOException;
 public class ProxyMain {
 
 	public static void main(String[] args) {
-		int serverPort = 9555;
-		int updaterPort = 9556;
+		int serverPort = args.length > 0 ? Integer.parseInt(args[0]) : 9555;
+		int updaterPort = args.length > 1 ? Integer.parseInt(args[1]) : 9556;
 		
 		try {
 			ConfigParser.parseConfig("proxyConfig.ini");

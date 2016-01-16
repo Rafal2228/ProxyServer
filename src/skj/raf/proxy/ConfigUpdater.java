@@ -12,28 +12,22 @@ public class ConfigUpdater implements Runnable{
 	private DatagramPacket _packet;
 	private DatagramSocket _server;
 	private byte[] _buffer;
-	private String _hash;
 	
 	public ConfigUpdater(int port) throws SocketException {
 		_buffer = new byte[BUFFER_SIZE]; 
 		_packet = new DatagramPacket(_buffer, _buffer.length);
 		_server = new DatagramSocket(port);
-		_hash = "";
 		System.out.println("Starting config updater at " + _server.getLocalAddress().getHostAddress() + ":" + port);
 	}
 	
 	public boolean setHash(String uuid) {
-		if(_hash.equals("")) {
-			_hash = uuid;
-			_packet.setData(("HASH;" + uuid).getBytes());
-			try {
-				_server.send(_packet);
-			} catch (IOException e) {
-				System.out.println(e.getMessage());
-			}
-			return true;
+		_packet.setData(("HASH;" + uuid).getBytes());
+		try {
+			_server.send(_packet);
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
 		}
-		return false;
+		return true;
 	}
 	
 	public void sendList(String list) {
