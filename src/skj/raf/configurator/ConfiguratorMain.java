@@ -40,14 +40,14 @@ public class ConfiguratorMain {
 					socket.receive(packet);
 					String rec = new String(packet.getData(), 0, packet.getLength());
 					if(!logged && rec.contains("HASH;")) {
-						rec = rec.substring(4, rec.length());
+						rec = rec.substring(5, rec.length());
 						hash = rec;
 						base = hash + ";";
-						
+
+						logged = true;
 						buffer = new byte[BUFFER_SIZE];
 						packet.setData(buffer);
 						socket.receive(packet);
-						logged = true;
 					}
 					System.out.println(new String(packet.getData()));
 				} catch(IOException e) {
