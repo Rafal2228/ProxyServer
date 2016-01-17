@@ -10,25 +10,19 @@ public class ProxyMain {
 		
 		try {
 			ConfigParser.parseConfig("proxyConfig.ini");
+			new Thread(new ConfigUpdater(updaterPort)).start();
+			if(ProxyFilter.configured)
+				try {
+					ProxyServer server = new ProxyServer(serverPort);
+					
+					server.startServer();
+				} catch (IOException e) {
+					System.out.println(e.getMessage());
+				}
+			else System.out.println("Wrong configuration");
 		} catch (Exception e1) {
 			System.out.println(e1.getMessage());
 		}
-		
-		try {
-			new Thread(new ConfigUpdater(updaterPort)).start();
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-		}
-		
-		if(ProxyFilter.configured)
-			try {
-				ProxyServer server = new ProxyServer(serverPort);
-				
-				server.startServer();
-			} catch (IOException e) {
-				System.out.println(e.getMessage());
-			}
-		else System.out.println("Wrong configuration");
 	}
 	
 }
