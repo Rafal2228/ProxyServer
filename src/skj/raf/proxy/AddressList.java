@@ -29,7 +29,7 @@ public class AddressList {
 	}
 	
 	public void denyClient(String client) {
-		if(_allow.get(0).match(client)) _allow.get(0).remove(client);
+		if(_allow.get(0).contains(client)) _allow.get(0).remove(client);
 		_deny.get(0).add(client);
 	}
 	
@@ -39,7 +39,7 @@ public class AddressList {
 	}
 	
 	public void allowClient(String client) {
-		if(_deny.get(0).match(client)) _deny.get(0).remove(client);
+		if(_deny.get(0).contains(client)) _deny.get(0).remove(client);
 		_allow.get(0).add(client);
 	}
 	
@@ -67,11 +67,11 @@ public class AddressList {
 	}
 	
 	public ListStatus canConnectTo(String client, String address) {
-		boolean contains = _addresses.stream().anyMatch(e -> e.contains(address));
+		boolean contains = _addresses.stream().anyMatch(e -> e.startsWith(address));
 		
 		if(contains) {
-			if(_allow.stream().anyMatch(e -> e.contains(client))) return ListStatus.ALLOW;
-			else if(_deny.stream().anyMatch(e -> e.contains(client))) return ListStatus.DENY;
+			if(_allow.stream().anyMatch(e -> e.match(client))) return ListStatus.ALLOW;
+			else if(_deny.stream().anyMatch(e -> e.match(client))) return ListStatus.DENY;
 		}
 		
 		return ListStatus.DOESNT_HAVE;
